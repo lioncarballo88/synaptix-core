@@ -42,18 +42,40 @@ npm install
 
 ## 🎯 Uso
 
+### Prueba Rápida
+
+```bash
+npm run test
+```
+
+### Uso Básico
+
 ```typescript
 import { AgentOrchestrator } from './core/agent-orchestrator';
 
 const orchestrator = new AgentOrchestrator();
 
+// Con OpenAI
 const response = await orchestrator.process({
   input: "Analiza las mejores prácticas de arquitectura de microservicios",
-  agentType: "researcher"
+  agentType: "researcher",
+  provider: "openai"
+});
+
+// Con Anthropic Claude
+const response2 = await orchestrator.process({
+  input: "Optimiza este código",
+  agentType: "optimizer",
+  provider: "anthropic"
 });
 
 console.log(response.output);
 ```
+
+### Modelos Soportados
+
+- **OpenAI**: `gpt-4o-mini` (configurable)
+- **Anthropic**: `claude-3-5-sonnet-20241022` (configurable)
 
 ## 🧠 Arquitectura
 

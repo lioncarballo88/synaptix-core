@@ -1,28 +1,33 @@
 import { AgentOrchestrator } from './core/agent-orchestrator';
 import { ResearcherAgent } from './agents/researcher';
-import { OptimizerAgent } from './agents/optimizer';
 
 async function main() {
   console.log('🚀 Synaptix Core - AI Orchestration Framework\n');
 
-  // Ejemplo 1: Uso directo del orquestador
   const orchestrator = new AgentOrchestrator();
   
-  const response = await orchestrator.process({
-    input: 'Explica las mejores prácticas de arquitectura de microservicios',
-    agentType: 'researcher'
+  console.log('📝 Example 1: Using OpenAI (gpt-4o-mini)');
+  const response1 = await orchestrator.process({
+    input: 'Explica las mejores prácticas de arquitectura de microservicios en 3 puntos clave',
+    agentType: 'researcher',
+    provider: 'openai'
   });
 
-  console.log('📊 Response:', response.output);
-  console.log('🔧 Tools used:', response.toolsUsed);
-  console.log('✅ Confidence:', response.confidence);
-  console.log('\n---\n');
+  console.log('\n✅ Response:', response1.output);
+  console.log('🔧 Tools used:', response1.toolsUsed);
+  console.log('📊 Metadata:', response1.metadata);
+  console.log('\n' + '='.repeat(80) + '\n');
 
-  // Ejemplo 2: Uso de agente especializado
-  const researcher = new ResearcherAgent();
-  const researchResult = await researcher.research('AI Agents en producción');
-  
-  console.log('🔍 Research Result:', researchResult);
+  console.log('📝 Example 2: Using Anthropic (Claude)');
+  const response2 = await orchestrator.process({
+    input: 'Optimiza este patrón: usar múltiples if-else anidados vs switch vs object lookup',
+    agentType: 'optimizer',
+    provider: 'anthropic'
+  });
+
+  console.log('\n✅ Response:', response2.output);
+  console.log('🔧 Tools used:', response2.toolsUsed);
+  console.log('📊 Metadata:', response2.metadata);
 }
 
 main().catch(console.error);
