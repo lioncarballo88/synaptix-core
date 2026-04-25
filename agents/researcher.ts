@@ -1,4 +1,4 @@
-import { AgentOrchestrator } from '../core/agent-orchestrator';
+import { AgentOrchestrator, AgentType, Provider } from '../core/agent-orchestrator';
 
 export class ResearcherAgent {
   private orchestrator: AgentOrchestrator;
@@ -7,10 +7,11 @@ export class ResearcherAgent {
     this.orchestrator = new AgentOrchestrator();
   }
 
-  async research(topic: string): Promise<string> {
+  async research(topic: string, provider: Provider = Provider.OpenAI): Promise<string> {
     const response = await this.orchestrator.process({
       input: `Research the following topic: ${topic}`,
-      agentType: 'researcher'
+      agentType: AgentType.Researcher,
+      provider
     });
 
     return response.output;

@@ -1,21 +1,37 @@
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { AgentOrchestrator } from '../core/agent-orchestrator';
 import { runDemo } from '../index';
 
 describe('Demo orchestrations', () => {
-  it('should run without throwing (openai example)', async () => {
-    // Mock the AgentOrchestrator to avoid real API calls
-    jest.mock('../core/agent-orchestrator', () => {
-      return {
-        AgentOrchestrator: jest.fn().mockImplementation(() => {
-          return {
-            process: jest.fn().mockResolvedValue({
-              output: 'mocked response',
-              toolsUsed: [],
-              metadata: {},
-            }),
-          };
-        }),
-      };
-    });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('runs openai example without throwing', async () => {
+    const processSpy = vi
+      .spyOn(AgentOrchestrator.prototype, 'process')
+      .mockResolvedValue({
+        output: 'mocked response',
+        toolsUsed: [],
+        confidence: 1,
+        metadata: {},
+      });
+
     await expect(runDemo('openai')).resolves.not.toThrow();
-  }, 20000);
+    expect(processSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('runs all examples without throwing', async () => {
+    const processSpy = vi
+      .spyOn(AgentOrchestrator.prototype, 'process')
+      .mockResolvedValue({
+        output: 'mocked response',
+        toolsUsed: [],
+        confidence: 1,
+        metadata: {},
+      });
+
+    await expect(runDemo('all')).resolves.not.toThrow();
+    expect(processSpy).toHaveBeenCalledTimes(2);
+  });
 });

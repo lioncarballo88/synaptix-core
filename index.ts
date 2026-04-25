@@ -1,7 +1,25 @@
-import { AgentOrchestrator } from './core/agent-orchestrator';
-// The ResearcherAgent import was unused; removed to keep the module clean.
-// import { ResearcherAgent } from './agents/researcher';
 import { Command } from 'commander';
+import { OptimizerAgent } from './agents/optimizer';
+import { ResearcherAgent } from './agents/researcher';
+import { Provider } from './core/agent-orchestrator';
+import { AutomationEngine } from './functions/automation-engine';
+
+// Public API surface for external consumers (UI, services, integrations).
+export {
+  AgentOrchestrator,
+  AgentType,
+  Provider as ProviderType,
+  type AgentResponse,
+  type AgentTask,
+  type Context,
+  type ToolName
+} from './core/agent-orchestrator';
+export { LLMProvider, type LLMRequest, type LLMResponse } from './core/llm-provider';
+export { ResearcherAgent } from './agents/researcher';
+export { OptimizerAgent } from './agents/optimizer';
+export { MemoryManager } from './database/memory-manager';
+export { Logger, LogLevel } from './logs/logger';
+export { AutomationEngine, type AutomationTask } from './functions/automation-engine';
 
 /**
  * Runs the demo orchestrations.
@@ -10,41 +28,40 @@ import { Command } from 'commander';
 export async function runDemo(example: 'openai' | 'anthropic' | 'all' = 'all') {
   console.log('🚀 Synaptix Core - AI Orchestration Framework\n');
 
-  const orchestrator = new AgentOrchestrator();
+  const researcher = new ResearcherAgent();
+  const optimizer = new OptimizerAgent();
+  const automation = new AutomationEngine();
 
   const runOpenAI = async () => {
     console.log('📝 Example: Using OpenAI (gpt-4o-mini)');
-    const response = await orchestrator.process({
-      input: 'Explica las mejores prácticas de arquitectura de microservicios en 3 puntos clave',
-      agentType: 'researcher',
-      provider: 'openai',
-    });
-    console.log('\n✅ Response:', response.output);
-    console.log('🔧 Tools used:', response.toolsUsed);
-    console.log('📊 Metadata:', response.metadata);
+    const output = await researcher.research(
+      'Explica las mejores prácticas de arquitectura de microservicios en 3 puntos clave',
+      Provider.OpenAI
+    );
+    console.log('\n✅ Response:', output);
   };
 
   const runAnthropic = async () => {
     console.log('📝 Example: Using Anthropic (Claude)');
-    const response = await orchestrator.process({
-      input: 'Optimiza este patrón: usar múltiples if-else anidados vs switch vs object lookup',
-      agentType: 'optimizer',
-      provider: 'anthropic',
-    });
-    console.log('\n✅ Response:', response.output);
-    console.log('🔧 Tools used:', response.toolsUsed);
-    console.log('📊 Metadata:', response.metadata);
+    const output = await optimizer.optimize(
+      'Optimiza este patrón: usar múltiples if-else anidados vs switch vs object lookup',
+      Provider.Anthropic
+    );
+    console.log('\n✅ Response:', output);
   };
+
+  automation.register({ name: 'openai-demo', action: runOpenAI });
+  automation.register({ name: 'anthropic-demo', action: runAnthropic });
 
   try {
     if (example === 'openai') {
-      await runOpenAI();
+      await automation.execute('openai-demo');
     } else if (example === 'anthropic') {
-      await runAnthropic();
+      await automation.execute('anthropic-demo');
     } else {
-      await runOpenAI();
+      await automation.execute('openai-demo');
       console.log('\n' + '='.repeat(80) + '\n');
-      await runAnthropic();
+      await automation.execute('anthropic-demo');
     }
   } catch (err) {
     // Structured error handling – log stack and exit with non‑zero code for CI.

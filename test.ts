@@ -1,4 +1,4 @@
-import { AgentOrchestrator } from './core/agent-orchestrator';
+import { AgentOrchestrator, AgentType, Provider } from './core/agent-orchestrator';
 
 async function quickTest() {
   console.log('🧪 Quick Test - Synaptix Core\n');
@@ -8,8 +8,8 @@ async function quickTest() {
   try {
     const response = await orchestrator.process({
       input: 'Hola, explica qué es un AI Agent en 2 líneas',
-      agentType: 'general',
-      provider: 'anthropic'
+      agentType: AgentType.General,
+      provider: Provider.Anthropic
     });
 
     console.log('\n✅ Success!');

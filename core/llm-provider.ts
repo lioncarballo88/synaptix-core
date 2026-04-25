@@ -1,11 +1,13 @@
-import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
 import * as dotenv from 'dotenv';
+import OpenAI from 'openai';
 dotenv.config();
+
+type LooseRecord = Record<string, unknown>;
 
 export interface LLMRequest {
   prompt: string;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
   tools?: string[];
   model?: string;
   provider?: 'openai' | 'anthropic';
@@ -55,7 +57,7 @@ export class LLMProvider {
       } else {
         throw new Error(`Provider ${provider} not configured or API key missing`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (this.isQuotaLikeError(error)) {
         console.warn('[LLM] All configured providers are unavailable. Returning graceful fallback response.');
         return this.createFallbackResponse(prompt, provider, error);
@@ -68,7 +70,7 @@ export class LLMProvider {
   private async completeWithOpenAI(
     prompt: string, 
     systemPrompt: string,
-    context?: Record<string, any>,
+    context?: Record<string, unknown>,
     tools?: string[]
   ): Promise<LLMResponse> {
     const model = 'gpt-4o-mini';
@@ -93,9 +95,9 @@ export class LLMProvider {
         provider: 'openai',
         model
       };
-    } catch (error: any) {
-      const status = error?.status;
-      const code = error?.code;
+    } catch (error: unknown) {
+      const status = this.getErrorField(error, 'status');
+      const code = this.getErrorField(error, 'code');
 
       if ((status === 429 || code === 'insufficient_quota') && this.anthropic) {
         console.warn('[LLM] OpenAI quota exhausted. Falling back to Anthropic.');
@@ -109,7 +111,7 @@ export class LLMProvider {
   private async completeWithAnthropic(
     prompt: string,
     systemPrompt: string,
-    context?: Record<string, any>,
+    context?: Record<string, unknown>,
     tools?: string[]
   ): Promise<LLMResponse> {
     const model = 'claude-3-5-sonnet-20241022';
@@ -140,7 +142,7 @@ export class LLMProvider {
 
   private buildPromptWithContext(
     prompt: string, 
-    context?: Record<string, any>,
+    context?: Record<string, unknown>,
     tools?: string[]
   ): string {
     let fullPrompt = prompt;
@@ -156,10 +158,10 @@ export class LLMProvider {
     return fullPrompt;
   }
 
-  private isQuotaLikeError(error: any): boolean {
-    const status = error?.status;
-    const code = error?.code;
-    const message = String(error?.message || JSON.stringify(error || ''));
+  private isQuotaLikeError(error: unknown): boolean {
+    const status = this.getErrorField(error, 'status');
+    const code = this.getErrorField(error, 'code');
+    const message = String(this.getErrorField(error, 'message') || JSON.stringify(error || ''));
 
     return (
       status === 429 ||
@@ -172,18 +174,23 @@ export class LLMProvider {
   private createFallbackResponse(
     prompt: string,
     provider: string,
-    error: any
+    error: unknown
   ): LLMResponse {
     return {
       text:
         `No pude completar la solicitud porque no hay cuota disponible en los proveedores configurados. ` +
         `Proveedor solicitado: ${provider}. ` +
-        `Detalle: ${String(error?.message || 'quota unavailable')}. ` +
+        `Detalle: ${String(this.getErrorField(error, 'message') || 'quota unavailable')}. ` +
         `Prompt original: ${prompt.substring(0, 120)}`,
       confidence: 0,
       tokensUsed: 0,
       provider: 'fallback',
       model: 'none'
     };
+  }
+
+  private getErrorField(error: unknown, field: string): unknown {
+    if (!error || typeof error !== 'object') return undefined;
+    return (error as LooseRecord)[field];
   }
 }

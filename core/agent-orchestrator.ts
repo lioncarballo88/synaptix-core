@@ -1,6 +1,6 @@
-import { LLMProvider } from './llm-provider';
 import { MemoryManager } from '../database/memory-manager';
 import { Logger, LogLevel } from '../logs/logger';
+import { LLMProvider } from './llm-provider';
 
 // Enums for agent types and providers
 export enum AgentType {
@@ -18,14 +18,14 @@ export enum Provider {
 /**
  * Context type for task metadata.
  */
-export type Context = Record<string, any>;
+export type Context = Record<string, unknown>;
 
 export type ToolName = 'search' | 'web-scraper' | 'knowledge-base' | 'document-analyzer' | 'code-analyzer' | 'performance-metrics' | 'best-practices-checker' | 'memory-retrieval';
 
 // Updated interface with enums
 export interface AgentTask {
   input: string;
-  context?: Record<string, any>;
+  context?: Context;
   agentType?: AgentType;
   provider?: Provider;
 }
@@ -34,7 +34,7 @@ export interface AgentResponse {
   output: string;
   toolsUsed: ToolName[];
   confidence: number;
-  metadata?: Record<string, any>;
+  metadata?: Context;
 }
 
 /**
@@ -58,7 +58,7 @@ export class AgentOrchestrator {
 
   async process(task: AgentTask): Promise<AgentResponse> {
     const startTime = Date.now();
-    const { input, context, agentType = 'general', provider = 'openai' } = task;
+    const { input, context, agentType = AgentType.General, provider = Provider.OpenAI } = task;
     
     this.logger.log(LogLevel.INFO, 'Processing task', { agentType, provider });
     
@@ -107,19 +107,19 @@ export class AgentOrchestrator {
     }
   }
 
-  private selectTools(input: string, agentType: string): string[] {
-    const tools: string[] = [];
+  private selectTools(input: string, agentType: AgentType): ToolName[] {
+    const tools: ToolName[] = [];
     const lowerInput = input.toLowerCase();
     
     if (lowerInput.includes('buscar') || lowerInput.includes('search')) {
       tools.push('search');
     }
     
-    if (agentType === 'researcher') {
+    if (agentType === AgentType.Researcher) {
       tools.push('web-scraper', 'knowledge-base', 'document-analyzer');
     }
     
-    if (agentType === 'optimizer') {
+    if (agentType === AgentType.Optimizer) {
       tools.push('code-analyzer', 'performance-metrics', 'best-practices-checker');
     }
     
@@ -128,14 +128,14 @@ export class AgentOrchestrator {
     return tools;
   }
 
-  private buildSystemPrompt(agentType: string): string {
+  private buildSystemPrompt(agentType: AgentType): string {
     const basePrompt = 'You are an advanced AI assistant with access to various tools and long-term memory.';
     
-    if (agentType === 'researcher') {
+    if (agentType === AgentType.Researcher) {
       return `${basePrompt} You specialize in research, analysis, and information synthesis. Provide detailed, well-sourced responses.`;
     }
     
-    if (agentType === 'optimizer') {
+    if (agentType === AgentType.Optimizer) {
       return `${basePrompt} You specialize in code optimization, performance analysis, and best practices. Focus on actionable improvements.`;
     }
     
