@@ -2,20 +2,49 @@ import { LLMProvider } from './llm-provider';
 import { MemoryManager } from '../database/memory-manager';
 import { Logger, LogLevel } from '../logs/logger';
 
+// Enums for agent types and providers
+export enum AgentType {
+  Researcher = 'researcher',
+  Optimizer = 'optimizer',
+  General = 'general'
+}
+
+export enum Provider {
+  OpenAI = 'openai',
+  Anthropic = 'anthropic'
+}
+
+// Type for tool names
+/**
+ * Context type for task metadata.
+ */
+export type Context = Record<string, any>;
+
+export type ToolName = 'search' | 'web-scraper' | 'knowledge-base' | 'document-analyzer' | 'code-analyzer' | 'performance-metrics' | 'best-practices-checker' | 'memory-retrieval';
+
+// Updated interface with enums
 export interface AgentTask {
   input: string;
   context?: Record<string, any>;
-  agentType?: 'researcher' | 'optimizer' | 'general';
-  provider?: 'openai' | 'anthropic';
+  agentType?: AgentType;
+  provider?: Provider;
 }
 
 export interface AgentResponse {
   output: string;
-  toolsUsed: string[];
+  toolsUsed: ToolName[];
   confidence: number;
   metadata?: Record<string, any>;
 }
 
+/**
+ * Orchestrates agent tasks using LLM, memory, and logging.
+ *
+ * @remarks
+ * This class handles the processing of agent tasks, including selecting tools,
+ * building system prompts, and managing responses. It also tracks metrics and
+ * ensures proper resource cleanup.
+ */
 export class AgentOrchestrator {
   private llm: LLMProvider;
   private memory: MemoryManager;
@@ -102,12 +131,14 @@ export class AgentOrchestrator {
   private buildSystemPrompt(agentType: string): string {
     const basePrompt = 'You are an advanced AI assistant with access to various tools and long-term memory.';
     
-    const prompts: Record<string, string> = {
-      researcher: `${basePrompt} You specialize in research, analysis, and information synthesis. Provide detailed, well-sourced responses.`,
-      optimizer: `${basePrompt} You specialize in code optimization, performance analysis, and best practices. Focus on actionable improvements.`,
-      general: `${basePrompt} You help with a wide range of tasks, from coding to architecture decisions.`
-    };
+    if (agentType === 'researcher') {
+      return `${basePrompt} You specialize in research, analysis, and information synthesis. Provide detailed, well-sourced responses.`;
+    }
     
-    return prompts[agentType] || prompts.general;
+    if (agentType === 'optimizer') {
+      return `${basePrompt} You specialize in code optimization, performance analysis, and best practices. Focus on actionable improvements.`;
+    }
+    
+    return `${basePrompt} You help with a wide range of tasks, from coding to architecture decisions.`;
   }
 }
