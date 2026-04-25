@@ -5,7 +5,13 @@
   "main": "index.ts",
   "scripts": {
     "dev": "ts-node index.ts",
-    "test": "ts-node test.ts",
+    "smoke": "ts-node test.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
+    "typecheck:test": "tsc --noEmit -p tsconfig.tests.json",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
     "build": "tsc",
     "start": "node dist/index.js"
   },
@@ -14,13 +20,19 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.46.1",
+    "@typescript-eslint/parser": "^8.46.1",
     "@types/node": "^25.6.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-import": "^2.32.0",
     "ts-node": "^10.9.2",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.0.7"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.91.1",
     "@supabase/supabase-js": "^2.104.1",
+    "commander": "^14.0.1",
     "dotenv": "^17.4.2",
     "openai": "^6.34.0"
   }
