@@ -9,7 +9,7 @@ async function quickTest() {
     const response = await orchestrator.process({
       input: 'Hola, explica qué es un AI Agent en 2 líneas',
       agentType: 'general',
-      provider: 'openai'
+      provider: 'anthropic'
     });
 
     console.log('\n✅ Success!');
