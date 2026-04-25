@@ -1,4 +1,4 @@
-import { AgentOrchestrator } from '../core/agent-orchestrator';
+import { AgentOrchestrator, AgentType, Provider } from '../core/agent-orchestrator';
 
 export class OptimizerAgent {
   private orchestrator: AgentOrchestrator;
@@ -7,10 +7,11 @@ export class OptimizerAgent {
     this.orchestrator = new AgentOrchestrator();
   }
 
-  async optimize(code: string): Promise<string> {
+  async optimize(code: string, provider: Provider = Provider.OpenAI): Promise<string> {
     const response = await this.orchestrator.process({
       input: `Optimize the following code: ${code}`,
-      agentType: 'optimizer'
+      agentType: AgentType.Optimizer,
+      provider
     });
 
     return response.output;

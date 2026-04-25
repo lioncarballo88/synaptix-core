@@ -18,7 +18,7 @@ export class Logger {
     }
   }
 
-  log(level: LogLevel, message: string, metadata?: Record<string, any>): void {
+  log(level: LogLevel, message: string, metadata?: Record<string, unknown>): void {
     const timestamp = new Date().toISOString();
     const logEntry = {
       timestamp,

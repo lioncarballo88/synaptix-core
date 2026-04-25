@@ -17,7 +17,7 @@ export class MemoryManager {
     }
   }
 
-  async store(input: string, output: any): Promise<void> {
+  async store(input: string, output: unknown): Promise<void> {
     if (!this.supabase || this.memoryDisabled) return;
     
     try {
@@ -38,7 +38,7 @@ export class MemoryManager {
     }
   }
 
-  async retrieve(query: string, limit: number = 5): Promise<any[]> {
+  async retrieve(_query: string, limit: number = 5): Promise<Record<string, unknown>[]> {
     if (!this.supabase || this.memoryDisabled) return [];
     
     try {
@@ -61,9 +61,10 @@ export class MemoryManager {
     }
   }
 
-  private handleSupabaseError(error: any): void {
-    const code = error?.code;
-    const message = String(error?.message || '');
+  private handleSupabaseError(error: unknown): void {
+    const errorRecord = (error && typeof error === 'object') ? (error as Record<string, unknown>) : {};
+    const code = errorRecord.code;
+    const message = String(errorRecord.message || '');
 
     if (
       code === 'PGRST205' ||
