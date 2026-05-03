@@ -5,7 +5,7 @@ export interface AutomationTask {
 }
 
 export class AutomationEngine {
-  private tasks: Map<string, AutomationTask> = new Map();
+  tasks: Map<string, AutomationTask> = new Map();
 
   register(task: AutomationTask): void {
     this.tasks.set(task.name, task);

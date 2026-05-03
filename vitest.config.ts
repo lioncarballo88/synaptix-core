@@ -4,6 +4,11 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['test/**/*.test.ts'],
-    clearMocks: true
-  }
+    clearMocks: true,
+    coverage: {
+      reporter: ['text', 'lcov'],
+      all: true,
+      threshold: 80,
+    },
+  },
 });
