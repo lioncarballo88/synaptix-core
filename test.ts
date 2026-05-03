@@ -1,4 +1,4 @@
-import { AgentOrchestrator, AgentType, Provider } from './core/agent-orchestrator';
+import { AgentOrchestrator, AgentType, Provider } from './src/core/agent-orchestrator';
 
 async function quickTest() {
   console.log('🧪 Quick Test - Synaptix Core\n');
